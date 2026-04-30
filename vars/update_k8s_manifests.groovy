@@ -1,14 +1,11 @@
 #!/usr/bin/env groovy
 
-/**
- * Update Kubernetes manifests with new image tags
- */
 def call(Map config = [:]) {
     def imageTag = config.imageTag ?: error("Image tag is required")
     def manifestsPath = config.manifestsPath ?: 'kubernetes'
-    def gitCredentials = config.gitCredentials ?: 'GIT-jenkins'
+    def gitCredentials = config.gitCredentials ?: 'github-jenkins' // Matches your active credential ID
     def gitUserName = config.gitUserName ?: 'Jenkins CI'
-    def gitUserEmail = config.gitUserEmail ?: 'jenkins@example.com'
+    def gitUserEmail = config.gitUserEmail ?: 'satyadevops30@gmail.com'
     
     echo "Updating Kubernetes manifests with image tag: ${imageTag}"
     
@@ -17,15 +14,12 @@ def call(Map config = [:]) {
         usernameVariable: 'GIT_USERNAME',
         passwordVariable: 'GIT_PASSWORD'
     )]) {
-        // Configure Git
         sh """
+            # Configure Git
             git config user.name "${gitUserName}"
             git config user.email "${gitUserEmail}"
-        """
-        
-        // Update deployment manifests with new image tags
-        sh """
-            # Update main application deployment for stephcurry30
+            
+            # Update main application deployment
             sed -i "s|image: stephcurry30/easyshop-app:.*|image: stephcurry30/easyshop-app:${imageTag}|g" ${manifestsPath}/08-easyshop-deployment.yaml
             
             # Update migration job if it exists
@@ -33,22 +27,21 @@ def call(Map config = [:]) {
                 sed -i "s|image: stephcurry30/easyshop-migration:.*|image: stephcurry30/easyshop-migration:${imageTag}|g" ${manifestsPath}/12-migration-job.yaml
             fi
             
-            # Ensure ingress is updated (Update 'your-domain.com' if needed)
+            # Update ingress host
             if [ -f "${manifestsPath}/10-ingress.yaml" ]; then
                 sed -i "s|host: .*|host: easyshop.letsdeployit.com|g" ${manifestsPath}/10-ingress.yaml
             fi
             
-            # Check for changes
+            # Check for changes and push
             if git diff --quiet; then
                 echo "No changes to commit"
             else
-                # Commit and push changes
                 git add ${manifestsPath}/*.yaml
                 git commit -m "Update image tags to ${imageTag} [ci skip]"
                 
-                # Set up credentials for push to satya2330/shoppingkartapplication
-                git remote set-url origin https://\${GIT_USERNAME}:\${GIT_PASSWORD}@github.com/satya2330/shoppingkartapplication.git
-                git push origin HEAD:\${GIT_BRANCH}
+                # REMOVED THE SPACE and switched to using the credential variables
+                # Pushing to 'master' branch as seen in your logs
+                git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/satya2330/shoppingkartapplication.git master
             fi
         """
     }
