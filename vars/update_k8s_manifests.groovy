@@ -46,7 +46,7 @@ def call(Map config = [:]) {
                 
                 # FIXED: Removed the space and corrected the repository path
                 # Using the environment variables $GIT_USERNAME and $GIT_PASSWORD directly
-                git remote set-url origin https://$GIT_USERNAME:$GIT_PASSWORD@github.com/satya2330/shoppingkartapplication.git
+                git remote set-url origin https://\$GIT_USERNAME:\$GIT_PASSWORD@github.com/satya2330/shoppingkartapplication.git
                 
                 # Pushing specifically to master as shown in your logs
                 git push origin master
