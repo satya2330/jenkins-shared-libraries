@@ -41,7 +41,7 @@ def call(Map config = [:]) {
                 
                 # REMOVED THE SPACE and switched to using the credential variables
                 # Pushing to 'master' branch as seen in your logs
-                 git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/satya2330/shoppingkartapplication.git master
+                sh "git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/satya2330/shoppingkartapplication.git master"
             fi
         """
     }
